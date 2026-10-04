@@ -11,11 +11,29 @@ execSync("npm install --save-dev nodemon", {
     stdio: "inherit"
 })
 
+// Update package.json
+const packageJson = JSON.parse(
+    fs.readFileSync("package.json", "utf8")
+)
+
+packageJson.scripts = {
+    ...packageJson.scripts,
+    dev: "nodemon server.js",
+    start: "node server.js"
+}
+
+fs.writeFileSync(
+    "package.json",
+    JSON.stringify(packageJson, null, 2) + "\n"
+)
+
+// Create .env
 fs.writeFileSync(
     ".env",
     `PORT=${port}\n`
 )
 
+// Create app.js
 fs.writeFileSync(
     "app.js",
     `const express = require("express")
@@ -29,6 +47,7 @@ module.exports = app
 `
 )
 
+// Create server.js
 fs.writeFileSync(
     "server.js",
     `require("dotenv").config()
