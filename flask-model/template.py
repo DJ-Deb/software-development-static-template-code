@@ -1,12 +1,13 @@
-import os
 import sys
 from pathlib import Path
 import logging
 
 logging.basicConfig(level=logging.INFO)
 
-def model_file_create(model_name:str):
+# Model Structure
+def model_file_create(model_name: str):
     model_file_list = [
+        # Model
         f"model/{model_name}/__init__.py",
 
         # Components
@@ -35,10 +36,6 @@ def model_file_create(model_name:str):
         f"model/{model_name}/constants/__init__.py",
         f"model/{model_name}/constants/constants.py",
 
-        # Core
-        f"model/{model_name}/exception.py",
-        f"model/{model_name}/logger.py",
-
         # Root
         "app.py",
         "Dockerfile",
@@ -46,7 +43,6 @@ def model_file_create(model_name:str):
         ".gitignore",
         ".env.example",
         "requirements.txt",
-        "setup.py",
         "pyproject.toml",
         "README.md",
 
@@ -59,26 +55,30 @@ def model_file_create(model_name:str):
         # Configuration
         "config/config.yaml",
     ]
+
+    # Create Files
     for filepath in model_file_list:
         filepath = Path(filepath)
-        filedir, filename = os.path.split(filepath)
-        if filedir != "":
-            os.makedirs(filedir, exist_ok=True)
-            logging.info(f"Creating directory: {filedir} for the {filename}")
-            print(f"Creating directory: {filedir} for the {filename}")
-        if (not os.path.exists(filepath)) or (os.path.getsize(filepath) == 0):
-            with open(filepath, "w") as f:
-                logging.info(f"Creating empty file: {filepath}")
-                pass
-        else:
-            logging.info(f"{filepath} already exists and is not empty")
+        filedir = filepath.parent
 
+        if filedir != Path("."):
+            filedir.mkdir(parents=True, exist_ok=True)
+        if not filepath.exists():
+            filepath.touch()
+            logging.info(f"Created file: {filepath}")
+        elif filepath.stat().st_size == 0:
+            logging.info(f"File already exists and is empty: {filepath}")
+        else:
+            logging.info(f"File already exists: {filepath}")
+
+# Main
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        raise ValueError(
-            "Usage: python template.py <model_name>"
-        )
+        raise ValueError("Usage: python template.py <model_name>")
+
     model_name = sys.argv[1].strip()
+
     if not model_name:
         raise ValueError("Model name cannot be empty.")
+
     model_file_create(model_name)
