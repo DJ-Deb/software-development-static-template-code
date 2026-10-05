@@ -22,6 +22,8 @@ const files = [
     "src/config/redis.js",
     "src/middleware/auth.middleware.js",
     "src/middleware/error.middleware.js",
+    "src/exception.js",
+    "src/logger.js",
     ".env",
     ".env.example",
     ".dockerignore",

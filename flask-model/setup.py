@@ -1,32 +1,61 @@
+import sys
 from setuptools import setup, find_packages
 from pathlib import Path
 from typing import List
 
+# Base Directory
+BASE_DIR = Path(__file__).parent
+
+# Get Port
+if len(sys.argv) != 2:
+    print("Usage: python setup.py <port_number>")
+    sys.exit(1)
+
+PORT = sys.argv[1]
+
+if not PORT.isdigit():
+    print("Error: Port must be a number.")
+    sys.exit(1)
+
+PORT = int(PORT)
+
+if not 1 <= PORT <= 65535:
+    print("Error: Port must be between 1 and 65535.")
+    sys.exit(1)
+
+# Update .env
+ENV_FILE = BASE_DIR / ".env"
+
+with open(ENV_FILE, "w", encoding="utf-8") as file:
+    file.write(f"PORT={PORT}\n")
+
+print(f"PORT={PORT} written to .env")
 
 # Project Configuration
 def get_input(prompt: str, default: str) -> str:
     value = input(f"{prompt} ({default}): ").strip()
     return value or default
 
+
+print()
 print("=" * 10, "ML PROJECT CONFIGURATION", "=" * 10)
 
-# Project Configuration
+
 PROJECT_NAME = get_input("Project Name", "ml-project")
 
 VERSION = "0.0.1"
 
-AUTHOR = get_input("Author", "Your Name")
+AUTHOR = get_input("Author", "")
 
-AUTHOR_EMAIL = get_input("Author Email", "your-email@example.com")
+AUTHOR_EMAIL = get_input("Author Email", "")
 
 DESCRIPTION = get_input("Description", "Machine Learning Project")
 
 PYTHON_REQUIRES = get_input("Python Version Requirement", ">=3.9")
 
-GITHUB_URL = get_input("GitHub Repository URL", "https://github.com/yourusername/your-repository")
+GITHUB_URL = get_input("GitHub Repository URL", "")
 
-BASE_DIR = Path(__file__).parent
-
+# Project Files
 REQUIREMENTS_FILE = BASE_DIR / "requirements.txt"
 README_FILE = BASE_DIR / "README.md"
 
@@ -34,7 +63,9 @@ README_FILE = BASE_DIR / "README.md"
 HYPHEN_E_DOT = "-e ."
 
 # Display Configuration
+print()
 print("=" * 10, "PROJECT CONFIGURATION", "=" * 10)
+
 print(f"Project Name: {PROJECT_NAME}")
 print(f"Version: {VERSION}")
 print(f"Author: {AUTHOR}")
@@ -42,7 +73,9 @@ print(f"Author Email: {AUTHOR_EMAIL}")
 print(f"Description: {DESCRIPTION}")
 print(f"Python Requirement: {PYTHON_REQUIRES}")
 print(f"GitHub URL: {GITHUB_URL}")
+print(f"Port: {PORT}")
 
+# Read Requirements
 def get_requirements(file_path: Path) -> List[str]:
     requirements = []
 
@@ -50,6 +83,7 @@ def get_requirements(file_path: Path) -> List[str]:
         return requirements
 
     with open(file_path, "r", encoding="utf-8") as file:
+
         for line in file:
             line = line.strip()
 
@@ -69,17 +103,23 @@ def get_requirements(file_path: Path) -> List[str]:
 
     return requirements
 
+
+# Read README
 if README_FILE.exists():
     with open(README_FILE, "r", encoding="utf-8") as file:
         LONG_DESCRIPTION = file.read()
 else:
     LONG_DESCRIPTION = DESCRIPTION
 
+sys.argv = [sys.argv[0]]
+
 # Setup
 setup(
-    # Basic information
+    # Basic Information
     name=PROJECT_NAME,
+
     version=VERSION,
+
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
@@ -88,51 +128,40 @@ setup(
     author=AUTHOR,
     author_email=AUTHOR_EMAIL,
 
-    # Project URLs
+    # Project URL
     url=GITHUB_URL,
 
-    # Package discovery
+    # Package Discovery
     packages=find_packages(),
 
     # Dependencies
     install_requires=get_requirements(REQUIREMENTS_FILE),
 
-    # Python version
+    # Python Version
     python_requires=PYTHON_REQUIRES,
 
     # Metadata
     classifiers=[
         "Development Status :: 3 - Alpha",
-
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
-
         "Topic :: Scientific/Engineering",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
         "Topic :: Scientific/Engineering :: Information Analysis",
-
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
-
         "Operating System :: OS Independent",
     ],
 
-    # Keywords for package indexes
-    keywords=[
-        PROJECT_NAME,
-        "machine-learning",
-        "machine-learning-project",
-        "artificial-intelligence",
-        "data-science",
-        "mlops"
-    ],
+    # Keywords
+    keywords=[PROJECT_NAME, "machine-learning", "machine-learning-project", "artificial-intelligence", "data-science", "mlops",],
 
-    # Include package data
+    # Package Data
     include_package_data=True,
 
-    # Zip-safe package
+    # Zip Safe
     zip_safe=False,
 )
