@@ -78,6 +78,7 @@ class Templates:
 
         return dedent('''
             # Add your project dependencies here
+            setuptools
             flask
             dvc
             pandas
