@@ -1,4 +1,4 @@
-import sys
+import os
 from setuptools import setup, find_packages
 from pathlib import Path
 from typing import List
@@ -6,22 +6,18 @@ from typing import List
 # Base Directory
 BASE_DIR = Path(__file__).parent
 
-# Get Port
-if len(sys.argv) != 2:
-    print("Usage: python setup.py <port_number>")
-    sys.exit(1)
+# Get Port from environment variable
+import os
 
-PORT = sys.argv[1]
+PORT = os.getenv("PORT", "8008")
 
 if not PORT.isdigit():
-    print("Error: Port must be a number.")
-    sys.exit(1)
+    raise ValueError("Port must be a number.")
 
 PORT = int(PORT)
 
 if not 1 <= PORT <= 65535:
-    print("Error: Port must be between 1 and 65535.")
-    sys.exit(1)
+    raise ValueError("Port must be between 1 and 65535.")
 
 # Update .env
 ENV_FILE = BASE_DIR / ".env"
@@ -110,8 +106,6 @@ if README_FILE.exists():
         LONG_DESCRIPTION = file.read()
 else:
     LONG_DESCRIPTION = DESCRIPTION
-
-sys.argv = [sys.argv[0]]
 
 # Setup
 setup(
