@@ -2,52 +2,90 @@ import logging
 from pathlib import Path
 from datetime import datetime
 
-# Log Configuration
+
+# LOG CONFIGURATION
 BASE_DIR = Path(__file__).resolve().parent
 
 LOG_DIR = BASE_DIR / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
-# Logger Factory
-def get_logger(model_name: str) -> logging.Logger:
-    logger = logging.getLogger(model_name)
+# LOGGER CLASS
+class Logger:
+    """
+        Reusable logger class for project components.\n
+        Initializes a logger for the specified model or component.\n
+        logger = Logger(model_name)\n
+        model_name should be a string such as "data_ingestion", "training", or "prediction".\n
+        USAGE:\n
+        \tlogger.info("info message")\n
+        \tlogger.error("error message")\n
+        \tlogger.debug("debug message")\n
+        \tlogger.warning("warning message")\n
+    """
 
-    logger.setLevel(logging.INFO)
+    def __init__(self, model_name: str):
+        self.model_name = model_name
 
-    # Prevent duplicate handlers
-    if logger.handlers:
+        # Initialize the actual Python logger
+        self.logger = self.get_logger(model_name)
+
+    @staticmethod
+    def get_logger(model_name: str) -> logging.Logger:
+        """Create or retrieve a configured Python logger."""
+
+        logger = logging.getLogger(model_name)
+        logger.setLevel(logging.INFO)
+
+        # Prevent duplicate handlers
+        if logger.handlers:
+            return logger
+
+        # Create a daily log file
+        log_file = LOG_DIR / (
+            f"{model_name}_"
+            f"{datetime.now().strftime('%Y-%m-%d')}.log"
+        )
+
+        # Create handlers
+        file_handler = logging.FileHandler(log_file, encoding="utf-8")
+
+        console_handler = logging.StreamHandler()
+
+        # Define log format
+        formatter = logging.Formatter(
+            "%(asctime)s | "
+            "%(name)s | "
+            "%(levelname)s | "
+            "%(filename)s:%(lineno)d | "
+            "%(message)s"
+        )
+
+        # Apply formatting
+        file_handler.setFormatter(formatter)
+        console_handler.setFormatter(formatter)
+        
+        # Attach handlers
+        logger.addHandler(file_handler)
+        logger.addHandler(console_handler)
         return logger
 
-    # Log File
-    log_file = LOG_DIR / (
-        f"{model_name}_"
-        f"{datetime.now().strftime('%Y-%m-%d')}.log"
-    )
 
-    # Handlers
-    file_handler = logging.FileHandler(
-        log_file,
-        encoding="utf-8"
-    )
+    # LOGGING METHODS
+    def debug(self, message: str) -> None:
+        self.logger.debug(message)
 
-    console_handler = logging.StreamHandler()
+    def info(self, message: str) -> None:
+        self.logger.info(message)
 
-    # Formatter
-    formatter = logging.Formatter(
-        "%(asctime)s | "
-        "%(name)s | "
-        "%(levelname)s | "
-        "%(filename)s:%(lineno)d | "
-        "%(message)s"
-    )
+    def warning(self, message: str) -> None:
+        self.logger.warning(message)
 
-    # Apply Formatter
-    file_handler.setFormatter(formatter)
-    console_handler.setFormatter(formatter)
+    def error(self, message: str) -> None:
+        self.logger.error(message)
 
-    # Add Handlers
-    logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
+    def exception(self, message: str) -> None:
+        # Use inside an exception handler to include the traceback.
+        self.logger.exception(message)
 
-
-    return logger
+    def critical(self, message: str) -> None:
+        self.logger.critical(message)
