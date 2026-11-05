@@ -104,8 +104,8 @@ def model_file_create(model_name: str):
 
         # Pipelines
         f"model/{model_name}/pipelines/__init__.py",
-        f"model/{model_name}/pipelines/training_pipeline.py",
-        f"model/{model_name}/pipelines/prediction_pipeline.py",
+        f"model/{model_name}/pipelines/training.py",
+        f"model/{model_name}/pipelines/prediction.py",
 
         # Configuration
         f"model/{model_name}/config/__init__.py",
@@ -117,7 +117,6 @@ def model_file_create(model_name: str):
 
         # Constants
         f"model/{model_name}/constants/__init__.py",
-        f"model/{model_name}/constants/constants.py",
 
         # Root
         "app.py",
