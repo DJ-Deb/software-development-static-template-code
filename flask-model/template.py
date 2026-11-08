@@ -76,31 +76,6 @@ class TemplateGenerator:
             else:
                 logger.info(f"File already exists: {filepath}")
 
-    def copy_model_template(self, model_name: str):
-        destination_dir = self.project_root / "model" / model_name
-
-        if not self.template_dir.exists():
-            raise FileNotFoundError(f"Template directory not found: {self.template_dir}")
-
-        if not self.template_dir.is_dir():
-            raise NotADirectoryError(f"Invalid template directory: {self.template_dir}")
-
-        destination_dir.parent.mkdir(parents=True, exist_ok=True)
-
-        # Copy files without overwriting existing files.
-        def copy_file(src, dst):
-            dst = Path(dst)
-            if dst.exists():
-                logger.info(f"File already exists, skipping: {dst}")
-                return str(dst)
-            
-            shutil.copy2(src, dst)
-            logger.info(f"Copied file: {dst}")
-            return str(dst)
-        
-        shutil.copytree(self.template_dir, destination_dir, dirs_exist_ok=True, copy_function=copy_file)
-        logger.info(f"Model template copied successfully: {destination_dir}")
-
     def create_requirements(self):
         requirements_path = (self.project_root / "requirements.txt")
 
@@ -121,10 +96,7 @@ class TemplateGenerator:
             # 1. Create root-level files.
             self.create_root_files()
 
-            # 2. Copy model structure from file_templates.
-            self.copy_model_template(model_name)
-
-            # 3. Generate requirements.txt if empty.
+            # 2. Generate requirements.txt if empty.
             self.create_requirements()
             logger.info(f"Template generation completed for: {model_name}")
         except Exception as e:
