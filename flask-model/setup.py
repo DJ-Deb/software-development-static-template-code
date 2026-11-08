@@ -1,98 +1,27 @@
-import os
+
 from setuptools import setup, find_packages
 from pathlib import Path
-from typing import List
 
-# Base Directory
 BASE_DIR = Path(__file__).parent
 
-# Get Port from environment variable
-import os
-
-PORT = os.getenv("PORT", "8008")
-
-if not PORT.isdigit():
-    raise ValueError("Port must be a number.")
-
-PORT = int(PORT)
-
-if not 1 <= PORT <= 65535:
-    raise ValueError("Port must be between 1 and 65535.")
-
-# Update .env
-ENV_FILE = BASE_DIR / ".env"
-
-with open(ENV_FILE, "w", encoding="utf-8") as file:
-    file.write(f"PORT={PORT}\n")
-
-print(f"PORT={PORT} written to .env")
-
-# Project Configuration
-def get_input(prompt: str, default: str) -> str:
-    value = input(f"{prompt} ({default}): ").strip()
-    return value or default
-
-
-print()
-print("=" * 10, "ML PROJECT CONFIGURATION", "=" * 10)
-
-
-PROJECT_NAME = get_input("Project Name", "ml-project")
-
-VERSION = "0.0.1"
-
-AUTHOR = get_input("Author", "")
-
-AUTHOR_EMAIL = get_input("Author Email", "")
-
-DESCRIPTION = get_input("Description", "Machine Learning Project")
-
-PYTHON_REQUIRES = get_input("Python Version Requirement", ">=3.9")
-
-GITHUB_URL = get_input("GitHub Repository URL", "")
-
-# Project Files
 REQUIREMENTS_FILE = BASE_DIR / "requirements.txt"
 README_FILE = BASE_DIR / "README.md"
 
-# Constants
-HYPHEN_E_DOT = "-e ."
 
-# Display Configuration
-print()
-print("=" * 10, "PROJECT CONFIGURATION", "=" * 10)
-
-print(f"Project Name: {PROJECT_NAME}")
-print(f"Version: {VERSION}")
-print(f"Author: {AUTHOR}")
-print(f"Author Email: {AUTHOR_EMAIL}")
-print(f"Description: {DESCRIPTION}")
-print(f"Python Requirement: {PYTHON_REQUIRES}")
-print(f"GitHub URL: {GITHUB_URL}")
-print(f"Port: {PORT}")
-
-# Read Requirements
-def get_requirements(file_path: Path) -> List[str]:
+def get_requirements(file_path: Path) -> list[str]:
     requirements = []
 
     if not file_path.exists():
         return requirements
 
     with open(file_path, "r", encoding="utf-8") as file:
-
         for line in file:
             line = line.strip()
 
-            # Ignore empty lines
-            if not line:
+            if not line or line.startswith("#"):
                 continue
 
-            # Ignore comments
-            if line.startswith("#"):
-                continue
-
-            # Ignore editable installation
-            if line == HYPHEN_E_DOT:
+            if line == "-e .":
                 continue
 
             requirements.append(line)
@@ -100,62 +29,34 @@ def get_requirements(file_path: Path) -> List[str]:
     return requirements
 
 
-# Read README
-if README_FILE.exists():
-    with open(README_FILE, "r", encoding="utf-8") as file:
-        LONG_DESCRIPTION = file.read()
-else:
-    LONG_DESCRIPTION = DESCRIPTION
+LONG_DESCRIPTION = (
+    README_FILE.read_text(encoding="utf-8")
+    if README_FILE.exists()
+    else "Machine Learning Project"
+)
 
-# Setup
+
 setup(
-    # Basic Information
-    name=PROJECT_NAME,
-
-    version=VERSION,
-
-    description=DESCRIPTION,
+    name="ml-project",
+    version="0.0.1",
+    description="Machine Learning Project",
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
 
-    # Author
-    author=AUTHOR,
-    author_email=AUTHOR_EMAIL,
-
-    # Project URL
-    url=GITHUB_URL,
-
-    # Package Discovery
     packages=find_packages(),
 
-    # Dependencies
     install_requires=get_requirements(REQUIREMENTS_FILE),
 
-    # Python Version
-    python_requires=PYTHON_REQUIRES,
+    python_requires=">=3.9",
 
-    # Metadata
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
-        "Topic :: Scientific/Engineering",
-        "Topic :: Scientific/Engineering :: Artificial Intelligence",
-        "Topic :: Scientific/Engineering :: Information Analysis",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
-        "Programming Language :: Python :: 3.12",
         "Operating System :: OS Independent",
     ],
 
-    # Keywords
-    keywords=[PROJECT_NAME, "machine-learning", "machine-learning-project", "artificial-intelligence", "data-science", "mlops",],
-
-    # Package Data
     include_package_data=True,
-
-    # Zip Safe
     zip_safe=False,
 )
